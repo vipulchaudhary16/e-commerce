@@ -1,70 +1,103 @@
-# Getting Started with Create React App
+## Firebase Essentials
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Firebase Setup
+1. Create a project in firebase console
+2. Create a web app in firebase console
+3. Copy the firebase config and paste it in the firebase.js file
+    ```js
+    import { initializeApp } from "firebase/app";
 
-## Available Scripts
+    /*Firebase configuration */
+    const firebaseConfig = {
+        apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
+        authDomain: "veer-clothing.firebaseapp.com",
+        projectId: "veer-clothing",
+        storageBucket: "veer-clothing.appspot.com",
+        messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+        appId: process.env.REACT_APP_APP_ID,
+        measurementId: process.env.REACT_APP_MEASUREMENT_ID,
+    };
 
-In the project directory, you can run:
+    const firebaseApp = initializeApp(firebaseConfig);
+    ```
 
-### `npm start`
+### Firebase Authentication
+1. Enable email/password authentication in firebase console
+2. Enable google authentication in firebase console
+   
+   firebase.js
+    ```js
+    import {
+        getAuth,
+        signInWithRedirect,
+        signInWithPopup,
+        GoogleAuthProvider,
+    } from "firebase/auth";
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    /*Selecting account from pop-up */
+    provider.setCustomParameters({
+        prompt: "select_account",
+    });
 
-### `npm test`
+    export const auth = getAuth();
+    export const signInWithGooglePopup = () => signInWithPopup(auth, provider); //signin with pop up display
+    ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    signin.component.jsx
+    ```js
+    //add this function onClick of the sign in with google button
+    const logGoogleUser = async () => {
+        const res = await signInWithGooglePopup();
+        console.log(res);
+    };
+    ```
 
-### `npm run build`
+### Firebase Firestore
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Enable firestore in firebase console
+2. Set up the database rules
+    ```js
+    rules_version = '2';
+    service cloud.firestore {
+        match /databases/{database}/documents {
+            match /{document=**} {
+                allow read, write: if request.auth != null;
+            }
+        }
+    }
+    ```
+3. firebase.js
+   
+    ```js
+    import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    /* Collection name for Firestore */
+    const COLLECTION_USER = "users";
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    export const db = getFirestore();
 
-### `npm run eject`
+    export const createUserDocFromAuth = async (userAuth) => {
+        const userDocRef = doc(db, COLLECTION_USER, userAuth.uid); //doc ref for logged in user 
+        const userSnapshot = await getDoc(userDocRef);
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+        if (!userSnapshot.exists()) { //if data does not exists in firestore
+            const { displayName, email, photoURL } = userAuth; //this is the info which we need at this time
+            const createdAt = new Date();
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+            try {
+                /*adding data to firestore */
+                await setDoc(userDocRef, {
+                    displayName,
+                    email,
+                    photoURL,
+                    createdAt,
+                });
+            } catch (err) {
+                console.log("error creating user", err.message);
+            }
+        }
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+        return userDocRef;
+    };
+    ```

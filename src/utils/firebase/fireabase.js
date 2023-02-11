@@ -24,21 +24,27 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-const provider = new GoogleAuthProvider();
+const provider_google = new GoogleAuthProvider();
 
 /*Selecting account from pop-up */
-provider.setCustomParameters({
+provider_google.setCustomParameters({
 	prompt: "select_account",
 });
 
+// Auth process
 export const auth = getAuth();
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider); //signin with pop up display
+
+export const signInWithGooglePopup = () => signInWithPopup(auth, provider_google); //signin with pop up display
+
+export const signInWithGoogleRedirect = () => signInWithRedirect(auth, provider_google);
+
+//Firestore process
 export const db = getFirestore();
 
 export const createUserDocFromAuth = async (userAuth) => {
 	const userDocRef = doc(db, COLLECTION_USER, userAuth.uid); //doc ref for logged in user 
 	const userSnapshot = await getDoc(userDocRef);
-	
+
 	if (!userSnapshot.exists()) { //if data does not exists in firestore
 		const { displayName, email, photoURL } = userAuth; //this is the info which we need at this time
 		const createdAt = new Date();
