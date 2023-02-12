@@ -144,6 +144,45 @@
 			if (err.code === "auth/email-already-in-use")
 				alert("Email already exists");
 			console.log(`User creation error ${err}`);
-		}
-  };
+			}
+ 		};
+
+### Sign in with email and password
+
+1. enable email/password authentication in firebase console
+   
+   firebase.js
+   ```js
+	import { signInWithEmailAndPassword } from "firebase/auth";
+
+	export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+		if (!email || !password) return
+			return await signInWithEmailAndPassword(auth, email, password)
+	}
+	```
+
+	signin.component.jsx
+	```js
+	/*
+	There is one state which holds the form fields named formFields (email, password)
+	*/
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		try {
+			const { user } = await signInAuthUserWithEmailAndPassword(
+				formFields.email,
+				formFields.password
+			);
+			alert("Signed in");
+			setFormFields({
+				email: "",
+				password: "",
+			});
+		} catch (err) {
+			if (err.code === "auth/wrong-password")
+				alert("Wrong password");
+			console.log(`User sign in error ${err}`);
+			}
+ 		};
 	```
