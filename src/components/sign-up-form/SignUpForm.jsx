@@ -4,10 +4,11 @@ import {
 	createUserDocFromAuth,
 } from "../../utils/firebase/fireabase";
 import Button from "../button/Button";
-
 import FormInput from "../form-component/FormInput";
 import './sign-up-form.styles.scss'
+
 const SignUpForm = () => {
+
 	const [formFields, setFormFields] = useState({
 		name: "",
 		email: "",

@@ -6,10 +6,12 @@ import FormInput from "../form-component/FormInput";
 import './sign-in-form.styles.scss'
 
 const SignInForm = () => {
+
 	const [formFields, setFormFields] = useState({
 		email: "",
 		password: "",
 	});
+
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -19,8 +21,7 @@ const SignInForm = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			const res = await signInAuthUserWithEmailAndPassword(formFields.email, formFields.password)
-			console.log(res)
+			const { user } = await signInAuthUserWithEmailAndPassword(formFields.email, formFields.password)
 		} catch (err) {
 			console.log(`sign in error ${err}`)
 			if (err.code === 'auth/wrong-password') alert("Wrong credentials ")
@@ -29,8 +30,8 @@ const SignInForm = () => {
 	};
 
 	const signInWithGoogle = async () => {
-		const res = await signInWithGooglePopup();
-		await createUserDocFromAuth(res.user);
+		const { user } = await signInWithGooglePopup();
+		await createUserDocFromAuth(user);
 	};
 
 	return (
@@ -59,9 +60,9 @@ const SignInForm = () => {
 
 				<div className="buttons-container">
 					<Button type='submit' >Sign In</Button>
-					<Button buttonType='google' onClick={signInWithGoogle}  >Sign In Google</Button>
+					<Button type='button' buttonType='google' onClick={signInWithGoogle}  >Sign In Google</Button>
 				</div>
-				
+
 			</form>
 		</div>
 	);
