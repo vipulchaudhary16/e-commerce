@@ -1,10 +1,14 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const CartContext = createContext({
 	isCartOpen: false,
 	setIsCartOpen: () => { },
 	cartItems: [],
-	addItemTocart: () => { }
+	addItemTocart: () => { },
+	removeItemFromCart: () => { },
+	deleteCartItem : () => {},
+	totalItem: 0,
+	setTotalItem: () => { }
 })
 
 /**
@@ -29,14 +33,48 @@ const addItemIfDoesNotExistElseIncrementQuantity = (cartItems, productToAdd) => 
 	return [...cartItems, { ...productToAdd, quantity: 1 }];
 }
 
+const removeCartItem = (cartItems, cartItemToRemove) => {
+	const existingCartItem = cartItems.find(
+		(cartItem) => cartItem.id === cartItemToRemove.id
+	);
+
+	if (existingCartItem.quantity === 1) {
+		return cartItems.filter((item) => item.id !== cartItemToRemove.id)
+	}
+
+	return cartItems.map((cartItem) =>
+		cartItem.id === cartItemToRemove.id
+			? { ...cartItem, quantity: cartItem.quantity - 1 }
+			: cartItem
+	);
+
+}
+
 export const CartProvider = ({ children }) => {
 	const [isCartOpen, setIsCartOpen] = useState(false)
 	const [cartItems, setCartItems] = useState([])
+	const [cartCount, setCartCount] = useState(0)
 
 	const addItemTocart = (productToAdd) => {
 		setCartItems(addItemIfDoesNotExistElseIncrementQuantity(cartItems, productToAdd))
 	}
 
-	const value = { isCartOpen, setIsCartOpen, addItemTocart, cartItems }
+	const removeItemFromCart = (cartItemToRemove) => {
+		setCartItems(removeCartItem(cartItems, cartItemToRemove))
+	}
+
+	const deleteCartItem = (cartItemToDelete) =>{
+		setCartItems(
+			 cartItems.filter((item) => item.id !== cartItemToDelete.id)
+		)
+	}
+
+	useEffect(() => {
+		setCartCount(
+			cartItems.reduce((total, cartItem) => total + cartItem.quantity, 0)
+		)
+	}, [cartItems])
+
+	const value = { isCartOpen, setIsCartOpen, addItemTocart, cartItems, cartCount, removeItemFromCart , deleteCartItem}
 	return <CartContext.Provider value={value} > {children}</CartContext.Provider>
 }
