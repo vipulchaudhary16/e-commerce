@@ -4,7 +4,6 @@ import { CategoriesContext } from '../../contexts/categories.context'
 
 export const CategoriesPreview = () => {
     const { categoriesMap } = useContext(CategoriesContext)
-    console.log(categoriesMap)
     return (
         <>
             {

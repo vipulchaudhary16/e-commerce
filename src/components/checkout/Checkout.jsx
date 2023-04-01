@@ -3,10 +3,8 @@ import { CartContext } from '../../contexts/cart.context'
 import CheckoutItem from '../checkout-item/CheckoutItem'
 import './checkout.styles.scss'
 
-
 const Checkout = () => {
     const { cartItems, cartTotal } = useContext(CartContext)
-    console.log(cartItems)
     return (
         <div className='checkout-container'>
             <div className="checkout-header">
