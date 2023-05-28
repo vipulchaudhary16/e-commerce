@@ -13,7 +13,6 @@ export const Shop = () => {
         const getCategoriesArray = async () => {
             const categoriesArray = await getCategoriesAndDocuments()
             dispatch(setCategories(categoriesArray))
-            console.log(categoriesArray)
         }
         getCategoriesArray()
     }, [])
