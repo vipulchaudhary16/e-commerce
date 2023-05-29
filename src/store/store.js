@@ -4,9 +4,11 @@ import { rootReducer } from './root-reducer'
 import storage from 'redux-persist/lib/storage'
 import { persistReducer, persistStore } from 'redux-persist'
 import { encryptTransform } from 'redux-persist-transform-encrypt';
+import thunk from 'redux-thunk'
 
-const middlewares = []
-if(process.env.NODE_ENV === 'development') middlewares.push(logger)
+const middlewares = [thunk]
+
+if(process.env.NODE_ENV !== 'production') middlewares.push(logger)
 const composeEnhancer =
   (process.env.NODE_ENV !== 'production' &&
     window &&
@@ -16,7 +18,8 @@ const composeEnhancer =
 const persistConfig = {
     key: 'root',
     storage,
-    blacklist: ['user'],
+    // blacklist: ['user'],
+    whitelist : ['cart'],
     transforms: [
         encryptTransform({
           secretKey: 'my-super-secret-key-xxxx',

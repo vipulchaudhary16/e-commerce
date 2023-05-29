@@ -101,3 +101,45 @@ ReactDOM.render(
 ### <u>Redux Thunk</u>
 
 - Redux Thunk is a middleware that allows you to return functions, rather than just actions, within Redux. This allows for delayed actions, including working with promises.
+
+store.js
+
+```js
+import thunk from "redux-thunk";
+const middlewares = [thunk];
+```
+
+action.js
+
+```js
+import { getCategoriesAndDocuments } from "../../utils/firebase/fireabase";
+import { createAction } from "../../utils/reducer/reducer.utils";
+import { CATEGORIES_ACTION_TYPES } from "./categories.types";
+
+export const fetchCategoriesStart = () =>
+  createAction(CATEGORIES_ACTION_TYPES.FETCH_CATEGORIES_START);
+
+export const fetchCategoriesSuccess = (categories) =>
+  createAction(CATEGORIES_ACTION_TYPES.FETCH_CATEGORIES_SUCCESS, categories);
+
+export const fetchCategoriesFailed = (error) =>
+  createAction(CATEGORIES_ACTION_TYPES.FETCH_CATEGORIES_FAILED, error);
+
+export const fetchCategoriesAsync = () => async (dispatch) => {
+  dispatch(fetchCategoriesStart());
+  try {
+    const categoriesArray = await getCategoriesAndDocuments();
+    dispatch(fetchCategoriesSuccess(categoriesArray));
+  } catch (error) {
+    dispatch(fetchCategoriesFailed(error));
+  }
+};
+```
+
+component.js
+
+```js
+useEffect(() => {
+  dispatch(fetchCategoriesAsync());
+}, []);
+```

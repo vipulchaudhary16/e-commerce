@@ -16,7 +16,7 @@ const Navigation = () => {
 		<Fragment>
 			<NavigationContainer>
 				<LogoContainer to="/">
-					<img src={logo} alt="VEER" />
+					<img src={logo} alt="VEER" style={{"height" : "80px"}}/>
 				</LogoContainer>
 				<NavLinkContainer>
 					<NavLink to="/shop">
