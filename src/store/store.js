@@ -4,9 +4,10 @@ import { rootReducer } from './root-reducer'
 import storage from 'redux-persist/lib/storage'
 import { persistReducer, persistStore } from 'redux-persist'
 import { encryptTransform } from 'redux-persist-transform-encrypt';
-import thunk from 'redux-thunk'
+import createSagaMiddleware from "redux-saga"
+import { rootSaga } from './root-saga'
 
-const middlewares = [thunk]
+const middlewares = []
 
 if(process.env.NODE_ENV !== 'production') middlewares.push(logger)
 const composeEnhancer =
@@ -15,16 +16,17 @@ const composeEnhancer =
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
   compose;
 
+const sagaMiddleware = createSagaMiddleware()
+middlewares.push(sagaMiddleware)
+
 const persistConfig = {
     key: 'root',
     storage,
-    // blacklist: ['user'],
-    whitelist : ['cart'],
+    blacklist: ['user'],
     transforms: [
         encryptTransform({
-          secretKey: 'my-super-secret-key-xxxx',
+          secretKey: 'secret-key',
           onError(error) {
-            // Handle the error.
             console.log(error)
           },
         }),
@@ -40,5 +42,7 @@ const composedEnhancers = composeEnhancer(applyMiddleware(...middlewares))
  * 3rd args: enhancers.. can be middleware etc
  */
 export const store = createStore(persistedReducer, undefined, composedEnhancers)
+
+sagaMiddleware.run(rootSaga)
 
 export const persistor = persistStore(store)
