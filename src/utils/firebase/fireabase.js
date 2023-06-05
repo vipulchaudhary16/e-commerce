@@ -36,7 +36,7 @@ const firebaseConfig = {
 	measurementId: process.env.REACT_APP_MEASUREMENT_ID,
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 const provider_google = new GoogleAuthProvider();
 
 /*Selecting account from pop-up */

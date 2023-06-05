@@ -15,4 +15,10 @@ export const signInFailed = (error) => createAction(USER_ACTION_TYPES.SIGN_IN_FA
 
 export const signUpStart = (name, email, password) => createAction(USER_ACTION_TYPES.SIGN_UP_START, {name, email, password})
 
+export const signUpSuccess = (user, extra) => createAction(USER_ACTION_TYPES.SIGN_UP_SUCCESS, {user, extra})
+
 export const signUpFailed = (error) => createAction(USER_ACTION_TYPES.SIGN_UP_FAILED, error)
+
+export const signOutStart = () => createAction(USER_ACTION_TYPES.SIGN_OUT_START)
+export const signOutSuccess = () => createAction(USER_ACTION_TYPES.SIGN_OUT_SUCCESS)
+export const signOutFailed = (error) => createAction(USER_ACTION_TYPES.SIGN_OUT_FAILED, error)

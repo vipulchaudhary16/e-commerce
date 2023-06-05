@@ -7,12 +7,21 @@ takeLatest - takes the latest action of a specific type that we pass to it
 */
 import { USER_ACTION_TYPES } from './user.type';
 import {
+	createAuthUserWithEmailAndPassword,
 	createUserDocFromAuth,
 	getCurrentUser,
 	signInAuthUserWithEmailAndPassword,
 	signInWithGooglePopup,
+	signOutAuthUser,
 } from '../../utils/firebase/fireabase';
-import { signInFailed, signInSuccess } from './user.action';
+import {
+	signInFailed,
+	signInSuccess,
+	signOutFailed,
+	signOutSuccess,
+	signUpFailed,
+	signUpSuccess,
+} from './user.action';
 
 export function* getSnapshotFromUserAuth(userAuth, additionalDetails) {
 	try {
@@ -39,6 +48,20 @@ export function* signInWithGoogle() {
 	}
 }
 
+export function* signUp({ payload }) {
+	try {
+		const { name, email, password } = payload;
+		const { user } = yield call(
+			createAuthUserWithEmailAndPassword,
+			email,
+			password
+		);
+		yield put(signUpSuccess(user, { displayName: name }));
+	} catch (error) {
+		yield put(signUpFailed(error));
+	}
+}
+
 export function* signInWithEmailPassword({ payload }) {
 	try {
 		const { email, password } = payload;
@@ -51,6 +74,11 @@ export function* signInWithEmailPassword({ payload }) {
 	} catch (error) {
 		yield put(signInFailed(error));
 	}
+}
+
+export function* signInAfterSignUp({ payload }) {
+	const { user, extra } = payload;
+	yield call(getSnapshotFromUserAuth, user, extra);
 }
 
 export function* isUserAuthenticated() {
@@ -67,6 +95,16 @@ export function* isUserAuthenticated() {
 	}
 }
 
+export function* signOut() {
+	try {
+		yield call(signOutAuthUser);
+		yield put(signOutSuccess());
+	} catch (error) {
+		yield put(signOutFailed(error));
+	}
+}
+
+// here we will create all the generators, which will be called by the sagas
 export function* onGoogleSignInStart() {
 	yield takeLatest(USER_ACTION_TYPES.GOOGLE_SIGN_IN_START, signInWithGoogle);
 }
@@ -78,9 +116,21 @@ export function* onEmailSignInStart() {
 	);
 }
 
+export function* onSignUpStart() {
+	yield takeLatest(USER_ACTION_TYPES.SIGN_UP_START, signUp);
+}
+
+export function* onSignUpSuccess() {
+	yield takeLatest(USER_ACTION_TYPES.SIGN_UP_SUCCESS, signInAfterSignUp);
+}
+
 export function* onCheckUserSession() {
 	//CHECK_USER_SESSION has one generator associated with it
 	yield takeLatest(USER_ACTION_TYPES.CHECK_USER_SESSION, isUserAuthenticated);
+}
+
+export function* onSignOutStart() {
+	yield takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOut);
 }
 
 // here we will initialize all the sagas
@@ -89,5 +139,8 @@ export function* userSagas() {
 		call(onCheckUserSession),
 		call(onGoogleSignInStart),
 		call(onEmailSignInStart),
+		call(onSignUpStart),
+		call(onSignUpSuccess),
+		call(onSignOutStart),
 	]);
 }
