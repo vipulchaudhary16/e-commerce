@@ -6,16 +6,14 @@ import Checkout from "./components/checkout/Checkout";
 import Home from "./routes/home/Home";
 import Navigation from "./routes/navigation/Navigation";
 import { Shop } from './routes/shop/Shop'
-import { onAuthStateChangedListener } from "./utils/firebase/fireabase";
-import { setCurrentUser } from "./store/user/user.action";
+import { getCurrentUser, onAuthStateChangedListener } from "./utils/firebase/fireabase";
+import { checkUserSession, setCurrentUser } from "./store/user/user.action";
 
 const App = () => {
 	const dispatch = useDispatch()
 
 	useEffect(() => {
-		return onAuthStateChangedListener((user) => {
-			dispatch(setCurrentUser(user))
-		})
+		dispatch(checkUserSession())
 	}, [])
 	return (
 		<Routes>

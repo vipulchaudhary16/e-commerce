@@ -208,3 +208,15 @@ sagaMiddleware.run(rootSaga);
 
 //...other code for store
 ```
+
+- Dispatch action from component.
+
+```js
+const dispatch = useDispatch();
+	useEffect(() => {
+		dispatch(fetchCategoriesStart());
+	}, []);
+```
+
+
+
