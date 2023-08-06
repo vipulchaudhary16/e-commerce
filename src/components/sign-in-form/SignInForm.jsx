@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { createUserDocFromAuth, signInAuthUserWithEmailAndPassword, signInWithGooglePopup } from "../../utils/firebase/fireabase";
+import { createUserDocFromAuth, signInAuthUserWithEmailAndPassword, signInWithGooglePopup } from "../../utils/firebase/firebase";
 
 import Button, { BUTTON_TYPE_CLASSES } from "../button/Button";
 import FormInput from "../form-component/FormInput";
 import './sign-in-form.styles.scss'
-import { emailSignInStart, googleSignInStart } from "../../store/user/user.action";
-import { useDispatch } from "react-redux";
 
 const SignInForm = () => {
 
@@ -13,8 +11,6 @@ const SignInForm = () => {
 		email: "",
 		password: "",
 	});
-
-	const dispatch = useDispatch()
 
 
 	const handleChange = (e) => {
@@ -25,7 +21,7 @@ const SignInForm = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			dispatch(emailSignInStart(formFields.email, formFields.password ))
+			const { user } = await signInAuthUserWithEmailAndPassword(formFields.email, formFields.password)
 		} catch (err) {
 			console.log(`sign in error ${err}`)
 			if (err.code === 'auth/wrong-password') alert("Wrong credentials ")
@@ -33,8 +29,9 @@ const SignInForm = () => {
 		}
 	};
 
-	const signInWithGoogle = () => {
-		dispatch(googleSignInStart())
+	const signInWithGoogle = async () => {
+		const { user } = await signInWithGooglePopup();
+		await createUserDocFromAuth(user);
 	};
 
 	return (
